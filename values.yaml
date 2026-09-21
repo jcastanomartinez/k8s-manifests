@@ -21,7 +21,8 @@ authService:
     repository: auth-service
     tag: "1.0"
     pullPolicy: Never
-  port: 8081
+  containerPort: 8080
+  servicePort: 8081
   replicas: 1
 
 # --- Base de datos de facturación ---
