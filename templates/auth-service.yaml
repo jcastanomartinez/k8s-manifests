@@ -18,7 +18,7 @@ spec:
           image: "{{ .Values.authService.image.repository }}:{{ .Values.authService.image.tag }}"
           imagePullPolicy: {{ .Values.authService.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.authService.port }}
+            - containerPort: {{ .Values.authService.containerPort }}
           env:
             - name: DB_HOST
               value: auth-postgres
@@ -48,6 +48,6 @@ spec:
   selector:
     app: auth-service
   ports:
-    - port: {{ .Values.authService.port }}
-      targetPort: {{ .Values.authService.port }}
+    - port: {{ .Values.authService.servicePort }}
+      targetPort: {{ .Values.authService.containerPort }}
   type: ClusterIP
