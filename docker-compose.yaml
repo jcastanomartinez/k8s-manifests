@@ -1,0 +1,45 @@
+# Bases de datos para desarrollo local (microservicios desde IntelliJ + ng serve)
+# Uso:  docker compose up -d
+# Las credenciales se leen del fichero .env que está junto a este archivo.
+
+services:
+  auth-db:
+    image: postgres:16
+    container_name: auth-db-local
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+
+  facturacion-db:
+    image: postgres:16
+    container_name: facturacion-db-local
+    environment:
+      POSTGRES_DB: facturas
+      POSTGRES_USER: fact_user
+      POSTGRES_PASSWORD: ${FACTURACION_DB_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - facturacion-data:/var/lib/postgresql/data
+
+  document-db:
+    image: postgres:16
+    container_name: document-db-local
+    environment:
+      POSTGRES_DB: documentdb
+      POSTGRES_USER: document_user
+      POSTGRES_PASSWORD: ${DOCUMENT_DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - document-data:/var/lib/postgresql/data
+
+volumes:
+  auth-data:
+  facturacion-data:
+  document-data:
