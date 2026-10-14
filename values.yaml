@@ -115,7 +115,7 @@ clientesService:
     repository: clientes-service
     tag: "1.0"
     pullPolicy: Never
-  port: 8083
+  port: 8084
   replicas: 1
   resources:
     requests:

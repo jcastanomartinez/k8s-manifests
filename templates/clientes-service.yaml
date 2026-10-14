@@ -21,7 +21,7 @@ spec:
             - containerPort: {{ .Values.clientesService.port }}
           env:
             - name: SERVER_PORT
-              value: "8083"
+              value: "8084"
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://clientes-postgres:5432/{{ .Values.clientesPostgres.db }}"
             - name: SPRING_DATASOURCE_USERNAME
