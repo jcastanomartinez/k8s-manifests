@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientes-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.clientesService.replicas }}
+  selector:
+    matchLabels:
+      app: clientes-service
+  template:
+    metadata:
+      labels:
+        app: clientes-service
+    spec:
+      containers:
+        - name: clientes-service
+          image: "{{ .Values.clientesService.image.repository }}:{{ .Values.clientesService.image.tag }}"
+          imagePullPolicy: {{ .Values.clientesService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.clientesService.port }}
+          env:
+            - name: SERVER_PORT
+              value: "8083"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://clientes-postgres:5432/{{ .Values.clientesPostgres.db }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.clientesPostgres.user | quote }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: clientes-password
+          resources:
+            {{- toYaml .Values.clientesService.resources | nindent 12 }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clientes-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: clientes-service
+  ports:
+    - port: {{ .Values.clientesService.port }}
+      targetPort: {{ .Values.clientesService.port }}

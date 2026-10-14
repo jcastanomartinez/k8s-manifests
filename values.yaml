@@ -6,6 +6,7 @@ secrets:
   authPassword: "T0byt081*"
   facturacionPassword: "T0byt081*"
   documentPassword: "T0byt081*"
+  clientesPassword: "T0byt081*"
   jwtSecret: "no funciona"
 
 # --- Base de datos de auth ---
@@ -90,6 +91,28 @@ documentPostgres:
 documentService:
   image:
     repository: document-service
+    tag: "1.0"
+    pullPolicy: Never
+  port: 8083
+  replicas: 1
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+# --- Base de datos de clientes ---
+clientesPostgres:
+  image: postgres:17-alpine
+  storage: 1Gi
+  db: clientes_db
+  user: clientes_user
+
+# --- Servicio de clientes ---
+clientesService:
+  image:
+    repository: clientes-service
     tag: "1.0"
     pullPolicy: Never
   port: 8083
