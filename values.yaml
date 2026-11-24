@@ -124,3 +124,24 @@ clientesService:
     limits:
       cpu: "1"
       memory: "1Gi"
+# --- Kafka (modo KRaft) ---
+kafka:
+  enabled: true
+  image:
+    repository: apache/kafka
+    tag: "3.8.0"
+    pullPolicy: IfNotPresent
+  clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
+  storage: 2Gi
+  clientPort: 9092
+  controllerPort: 9093
+  topic:
+    name: clientes.eventos
+    partitions: 3
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"

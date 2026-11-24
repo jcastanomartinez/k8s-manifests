@@ -1,0 +1,89 @@
+{{- if .Values.kafka.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    app: kafka
+spec:
+  clusterIP: None
+  ports:
+    - name: client
+      port: {{ .Values.kafka.clientPort }}
+      targetPort: client
+    - name: controller
+      port: {{ .Values.kafka.controllerPort }}
+      targetPort: controller
+  selector:
+    app: kafka
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: "{{ .Values.kafka.image.repository }}:{{ .Values.kafka.image.tag }}"
+          imagePullPolicy: {{ .Values.kafka.image.pullPolicy }}
+          ports:
+            - name: client
+              containerPort: {{ .Values.kafka.clientPort }}
+            - name: controller
+              containerPort: {{ .Values.kafka.controllerPort }}
+          env:
+            - name: KAFKA_NODE_ID
+              value: "1"
+            - name: KAFKA_PROCESS_ROLES
+              value: "broker,controller"
+            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+              value: "1@kafka-0.kafka.{{ .Values.namespace | default .Release.Namespace }}.svc.cluster.local:{{ .Values.kafka.controllerPort }}"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://0.0.0.0:{{ .Values.kafka.clientPort }},CONTROLLER://0.0.0.0:{{ .Values.kafka.controllerPort }}"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka-0.kafka.{{ .Values.namespace | default .Release.Namespace }}.svc.cluster.local:{{ .Values.kafka.clientPort }}"
+            - name: KAFKA_CONTROLLER_LISTENER_NAMES
+              value: "CONTROLLER"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+            - name: CLUSTER_ID
+              value: {{ .Values.kafka.clusterId | quote }}
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "1"
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "false"
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+          resources:
+            requests:
+              memory: {{ .Values.kafka.resources.requests.memory | quote }}
+              cpu: {{ .Values.kafka.resources.requests.cpu | quote }}
+            limits:
+              memory: {{ .Values.kafka.resources.limits.memory | quote }}
+              cpu: {{ .Values.kafka.resources.limits.cpu | quote }}
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.kafka.storage | quote }}
+{{- end }}
